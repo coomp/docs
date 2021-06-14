@@ -61,4 +61,4 @@
   install -o 1000 -d /home/$(id -nu 1000)/.kube
   install -o 1000 /etc/kubernetes/admin.conf /home/$(id -nu 1000)/.kube/config
   ```
-+ 
++ install apps
