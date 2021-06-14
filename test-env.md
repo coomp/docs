@@ -64,4 +64,90 @@
   kubectl taint nodes --all node-role.kubernetes.io/master-kubectl taint nodes --all node-role.kubernetes.io/master-
 
   ```
-+ install apps
++ install apps (e.g. nginx)
+  ```yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: nginx-deployment
+  spec:
+    selector:
+      matchLabels:
+        app: nginx
+    replicas: 2 # tells deployment to run 2 pods matching the template
+    template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.14.2
+          ports:
+          - containerPort: 80
+
+  ---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: nginx-service
+  spec:
+    type: NodePort
+    selector:
+      app: nginx
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+        nodePort: 30080
+  ```
++ deploy an ingress controller
+  ```bash
+  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/baremetal/deploy.yaml
+  ```
++ change your app using ingress (For more [details](https://kubernetes.io/zh/docs/concepts/services-networking/ingress/))
+  ```yaml
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: nginx-deployment
+  spec:
+    selector:
+      matchLabels:
+        app: nginx
+    replicas: 2 # tells deployment to run 2 pods matching the template
+    template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.14.2
+          ports:
+          - containerPort: 80
+
+  ---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: nginx-service
+  spec:
+    selector:
+      app: nginx
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 80
+  ---
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: nginx-app-ingress
+  spec:
+    defaultBackend:
+      service:
+        name: nginx-service
+        port:
+          number: 80
+  ```
