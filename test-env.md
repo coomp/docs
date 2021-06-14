@@ -29,6 +29,7 @@
       yum install -y docker
       systemctl enable docker
       systemctl start docker
+      swapoff -a
 
       cat <<EOF >  /etc/sysctl.d/k8s.conf
   net.bridge.bridge-nf-call-ip6tables = 1
